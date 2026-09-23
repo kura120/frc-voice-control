@@ -1,0 +1,35 @@
+name: Rust CI
+
+on:
+  push:
+    paths:
+      - 'core-asr/**'
+      - 'Cargo.toml'
+  pull_request:
+    paths:
+      - 'core-asr/**'
+      - 'Cargo.toml'
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Rust Toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache Dependencies
+        uses: swatinem/rust-cache@v2
+
+      - name: Enforce Formatting
+        run: cargo fmt --manifest-path core-asr/Cargo.toml -- --check
+
+      - name: Static Analysis (Clippy)
+        run: cargo clippy --manifest-path core-asr/Cargo.toml -- -D warnings
+
+      - name: Verify Compilation
+        run: cargo check --manifest-path core-asr/Cargo.toml
