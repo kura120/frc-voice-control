@@ -23,5 +23,5 @@ jobs:
       - name: Run Ruff Lint & Format Checks
         # Ensures clean imports, no syntax errors, and standard spacing
         run: |
-          ruff check network-bridge/ robot/
-          ruff format --check network-bridge/ robot/
+          ruff check bridge/ robot/
+          ruff format --check bridge/ robot/
