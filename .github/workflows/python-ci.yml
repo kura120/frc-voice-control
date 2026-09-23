@@ -1,0 +1,27 @@
+name: Python CI
+
+on:
+  push:
+    paths:
+      - 'bridge/**'
+      - 'robot/**'
+  pull_request:
+    paths:
+      - 'bridge/**'
+      - 'robot/**'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff Lint & Format Checks
+        # Ensures clean imports, no syntax errors, and standard spacing
+        run: |
+          ruff check network-bridge/ robot/
+          ruff format --check network-bridge/ robot/
