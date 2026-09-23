@@ -34,3 +34,16 @@ pub fn start_microphone_stream(tx: Sender<Vec<i16>>) -> Result<cpal::Stream, Box
     stream.play()?;
     Ok(stream)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_audio_constraints() {
+        let config = AudioConfig::default();
+        assert_eq!(config.sample_rate, 16000);
+
+        assert_eq!(config.channels, 1);
+    }
+}
