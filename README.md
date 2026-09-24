@@ -100,10 +100,6 @@ Keep phrases short and phonetically distinct.
 - Check the current-year FRC game manual on operator input and driver station software before
   using this in a match.
 
-## Development
+<sub> yes the java and cpp examples are AI generated but I did my research on it and made sure it follows all FRC java and cpp practices.. hope it's useful</sub>
 
-CI runs `ruff check` and `ruff format --check`. Locally: `pip install ruff && ruff check . && ruff format .`
-
-## License
-
-See `LICENSE`.
+<sub>and yes this readme is also generated.. deal with it</sub>
