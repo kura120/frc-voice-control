@@ -1,6 +1,10 @@
-/target/
-.venv/
 __pycache__/
-models/
 *.pyc
-.DS_Store
+.venv/
+.ruff_cache/
+# Vosk models are large; download separately
+client/model/
+client/vosk-model-*/
+# WPILib build output
+build/
+.gradle/
