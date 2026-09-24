@@ -1,8 +1,8 @@
 """Entry point.
 
-    python -m voicelink --model ./vosk-model-small-en-us-0.15 --team 1234
-    python -m voicelink --model ./model --server localhost   # robot simulation
-    python -m voicelink --list-devices
+python -m voicelink --model ./vosk-model-small-en-us-0.15 --team 1234
+python -m voicelink --model ./model --server localhost   # robot simulation
+python -m voicelink --list-devices
 """
 
 import argparse
