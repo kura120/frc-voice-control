@@ -3,8 +3,10 @@ __pycache__/
 .venv/
 .ruff_cache/
 # Vosk models are large; download separately
-client/model/
-client/vosk-model-*/
+model/
 # WPILib build output
 build/
 .gradle/
+*.json
+pyproject.toml
+examples/*/.gitignore

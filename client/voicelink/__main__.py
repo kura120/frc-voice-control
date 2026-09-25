@@ -1,8 +1,10 @@
 """Entry point.
 
-python -m voicelink --model ./vosk-model-small-en-us-0.15 --team 1234
-python -m voicelink --model ./model --server localhost   # robot simulation
-python -m voicelink --list-devices
+Usage:
+    python -m voicelink --model ./vosk-model-small-en-us-0.15 --team 1234
+    python -m voicelink --model ./model --server localhost   # robot simulation
+    python -m voicelink --plain --model ./model --server localhost
+    python -m voicelink --list-devices
 """
 
 import argparse
@@ -16,6 +18,7 @@ from .asr import Recognizer
 from .controller import VoiceController
 from .link import RobotLink
 from .ptt import PushToTalk, parse_key
+from .reporting import PlainReporter
 
 
 def parse_args() -> argparse.Namespace:
@@ -29,6 +32,12 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--always-on", action="store_true", help="skip push-to-talk (not recommended)")
     ap.add_argument("--min-conf", type=float, default=config.DEFAULT_MIN_CONF)
     ap.add_argument("--arm-seconds", type=float, default=config.DEFAULT_ARM_SECONDS)
+    ap.add_argument(
+        "--verbosity", type=int, default=config.DEFAULT_VERBOSITY, choices=(0, 1, 2)
+    )
+    ap.add_argument(
+        "--plain", action="store_true", help="plain scrolling text instead of the live dashboard"
+    )
     ap.add_argument("--list-devices", action="store_true")
     args = ap.parse_args()
     if not args.list_devices and args.team is None and args.server is None:
@@ -36,17 +45,25 @@ def parse_args() -> argparse.Namespace:
     return args
 
 
-def main() -> None:
-    args = parse_args()
-    if args.list_devices:
-        print(sd.query_devices())
-        return
+def make_reporter(args: argparse.Namespace):
+    if args.plain:
+        return PlainReporter(verbosity=args.verbosity)
+    try:
+        from .display import RichReporter
+    except ImportError:
+        print(
+            "rich isn't installed (pip install rich); falling back to --plain output.",
+            file=sys.stderr,
+        )
+        return PlainReporter(verbosity=args.verbosity)
+    return RichReporter(verbosity=args.verbosity)
 
-    print("loading model...")
+
+def run(args: argparse.Namespace, reporter) -> None:
+    print("loading model...") if isinstance(reporter, PlainReporter) else None
     recognizer = Recognizer(args.model, config.SAMPLE_RATE)
-    controller = VoiceController(
-        RobotLink(team=args.team, server=args.server), args.min_conf, args.arm_seconds
-    )
+    link = RobotLink(team=args.team, server=args.server)
+    controller = VoiceController(link, args.min_conf, args.arm_seconds, reporter)
 
     ptt = None
     if not args.always_on:
@@ -57,12 +74,10 @@ def main() -> None:
 
     def on_audio(indata, frames, time_info, status) -> None:
         if status:
-            print(status, file=sys.stderr)
+            reporter.log(str(status))
         audio_q.put(bytes(indata))
 
     device = int(args.device) if args.device and args.device.isdigit() else args.device
-    mode = "always listening" if ptt is None else f"hold [{args.ptt_key}] to talk"
-    print(f"ready: {mode}. Say '{config.ARM_PHRASE}' then a command. Ctrl+C to quit.")
 
     was_talking = False
     with sd.RawInputStream(
@@ -75,13 +90,14 @@ def main() -> None:
     ):
         try:
             while True:
+                talking = args.always_on or (ptt is not None and ptt.active)
+                reporter.status(connected=link.connected, listening=talking)
                 controller.tick()
                 try:
                     data = audio_q.get(timeout=0.1)
                 except queue.Empty:
                     continue
 
-                talking = ptt is None or ptt.active
                 if talking:
                     if not was_talking:
                         recognizer.reset()
@@ -92,9 +108,20 @@ def main() -> None:
                     controller.handle(recognizer.finish())
                 was_talking = talking
         except KeyboardInterrupt:
-            print("\nbye")
+            pass
         finally:
             controller.shutdown()
+
+
+def main() -> None:
+    args = parse_args()
+    if args.list_devices:
+        print(sd.query_devices())
+        return
+
+    reporter = make_reporter(args)
+    with reporter:
+        run(args, reporter)
 
 
 if __name__ == "__main__":
