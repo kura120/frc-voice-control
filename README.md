@@ -1,4 +1,4 @@
-# frc-voice-control
+# frc-voicelink
 
 Voice commands for an FRC robot. Speech is recognized **on the driver station laptop**
 (Vosk, restricted grammar) and sent to the robot over NetworkTables. The robot side is a
