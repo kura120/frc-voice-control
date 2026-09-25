@@ -52,7 +52,7 @@ class RichReporter:
         self._last: tuple[str, float, Outcome, str] | None = None
         self._history: deque[tuple] = deque(maxlen=500)
 
-    def __enter__(self) -> "RichReporter":
+    def __enter__(self) -> RichReporter:
         self._live.start()
         self._render()
         return self

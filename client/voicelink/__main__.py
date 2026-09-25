@@ -32,9 +32,7 @@ def parse_args() -> argparse.Namespace:
     ap.add_argument("--always-on", action="store_true", help="skip push-to-talk (not recommended)")
     ap.add_argument("--min-conf", type=float, default=config.DEFAULT_MIN_CONF)
     ap.add_argument("--arm-seconds", type=float, default=config.DEFAULT_ARM_SECONDS)
-    ap.add_argument(
-        "--verbosity", type=int, default=config.DEFAULT_VERBOSITY, choices=(0, 1, 2)
-    )
+    ap.add_argument("--verbosity", type=int, default=config.DEFAULT_VERBOSITY, choices=(0, 1, 2))
     ap.add_argument(
         "--plain", action="store_true", help="plain scrolling text instead of the live dashboard"
     )

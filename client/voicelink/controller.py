@@ -3,7 +3,7 @@
 import time
 from typing import TYPE_CHECKING
 
-from .config import ALWAYS_ALLOWED, ACTIVATE_PHRASE, COMMANDS, DEACTIVATE_PHRASE
+from .config import ACTIVATE_PHRASE, ALWAYS_ALLOWED, COMMANDS, DEACTIVATE_PHRASE
 from .events import Outcome
 from .reporting import PlainReporter, Reporter
 
